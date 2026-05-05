@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ResumeService.Api/ResumeService.Api.csproj" />
+    <Project Path="src/ResumeService.Core/ResumeService.Core.csproj" />
+    <Project Path="src/ResumeService.Infrastructure/ResumeService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ResumeService.IntegrationTests/ResumeService.IntegrationTests.csproj" />
+    <Project Path="tests/ResumeService.UnitTests/ResumeService.UnitTests.csproj" />
+  </Folder>
+</Solution>
