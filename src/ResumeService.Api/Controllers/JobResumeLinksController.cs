@@ -22,7 +22,7 @@ public class JobResumeLinksController : ControllerBase
     public async Task<IActionResult> Get(Guid jobId)
     {
         var link = await _service.GetJobResumeAsync(jobId, UserId);
-        return link is null ? NotFound() : Ok(link);
+        return Ok(link);
     }
 
     [HttpPut]
