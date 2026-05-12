@@ -65,21 +65,27 @@ public class ResumeService
         return await _resumeRepo.DeleteAsync(id, userId);
     }
 
-    public async Task<JobResumeLinkResponse?> GetJobResumeAsync(Guid jobRequisitionId, string userId)
+    public async Task<JobDocumentsResponse> GetJobDocumentsAsync(Guid jobRequisitionId, string userId)
     {
-        var link = await _linkRepo.GetByJobAsync(jobRequisitionId, userId);
-        return link is null ? null : MapLinkToResponse(link);
+        var links = await _linkRepo.GetAllByJobAsync(jobRequisitionId, userId);
+        var linkList = links.ToList();
+        var resume = linkList.FirstOrDefault(l => l.DocumentType == DocumentType.Resume);
+        var coverLetter = linkList.FirstOrDefault(l => l.DocumentType == DocumentType.CoverLetter);
+        return new JobDocumentsResponse(
+            resume is null ? null : MapLinkToResponse(resume),
+            coverLetter is null ? null : MapLinkToResponse(coverLetter));
     }
 
-    public async Task<JobResumeLinkResponse> LinkResumeToJobAsync(Guid jobRequisitionId, string userId, Guid resumeId)
+    public async Task<JobResumeLinkResponse> LinkDocumentToJobAsync(
+        Guid jobRequisitionId, string userId, Guid resumeId, DocumentType documentType)
     {
-        var link = await _linkRepo.UpsertAsync(jobRequisitionId, userId, resumeId);
+        var link = await _linkRepo.UpsertAsync(jobRequisitionId, userId, resumeId, documentType);
         return MapLinkToResponse(link);
     }
 
-    public async Task<bool> UnlinkResumeFromJobAsync(Guid jobRequisitionId, string userId)
+    public async Task<bool> UnlinkDocumentFromJobAsync(Guid jobRequisitionId, string userId, DocumentType documentType)
     {
-        return await _linkRepo.DeleteByJobAsync(jobRequisitionId, userId);
+        return await _linkRepo.DeleteByJobAndTypeAsync(jobRequisitionId, userId, documentType);
     }
 
     private static string FormatFileSize(long bytes) => bytes switch
@@ -95,6 +101,7 @@ public class ResumeService
 
     private static JobResumeLinkResponse MapLinkToResponse(JobResumeLink l) => new(
         l.Id, l.JobRequisitionId, l.ResumeId,
+        l.DocumentType.ToString(),
         l.Resume.FileName, l.Resume.ContentType, l.Resume.FileSizeBytes,
         FormatFileSize(l.Resume.FileSizeBytes), l.LinkedAt);
 }

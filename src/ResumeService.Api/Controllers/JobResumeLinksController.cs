@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResumeService.Core.DTOs;
-using ResumeService.Core.Services;
+using ResumeService.Core.Models;
 
 namespace ResumeService.Api.Controllers;
 
 [ApiController]
-[Route("api/jobs/{jobId:guid}/resume")]
+[Route("api/jobs/{jobId:guid}/documents")]
 [Authorize]
 public class JobResumeLinksController : ControllerBase
 {
@@ -21,21 +21,27 @@ public class JobResumeLinksController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get(Guid jobId)
     {
-        var link = await _service.GetJobResumeAsync(jobId, UserId);
-        return Ok(link);
+        var docs = await _service.GetJobDocumentsAsync(jobId, UserId);
+        return Ok(docs);
     }
 
     [HttpPut]
-    public async Task<IActionResult> Link(Guid jobId, [FromBody] LinkResumeToJobRequest request)
+    public async Task<IActionResult> Link(Guid jobId, [FromBody] LinkDocumentToJobRequest request)
     {
-        var link = await _service.LinkResumeToJobAsync(jobId, UserId, request.ResumeId);
+        if (!Enum.TryParse<DocumentType>(request.DocumentType, out var docType))
+            return BadRequest(new { error = "Invalid document type. Must be 'Resume' or 'CoverLetter'." });
+
+        var link = await _service.LinkDocumentToJobAsync(jobId, UserId, request.ResumeId, docType);
         return Ok(link);
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> Unlink(Guid jobId)
+    [HttpDelete("{documentType}")]
+    public async Task<IActionResult> Unlink(Guid jobId, string documentType)
     {
-        var deleted = await _service.UnlinkResumeFromJobAsync(jobId, UserId);
+        if (!Enum.TryParse<DocumentType>(documentType, out var docType))
+            return BadRequest(new { error = "Invalid document type. Must be 'Resume' or 'CoverLetter'." });
+
+        var deleted = await _service.UnlinkDocumentFromJobAsync(jobId, UserId, docType);
         return deleted ? NoContent() : NotFound();
     }
 }

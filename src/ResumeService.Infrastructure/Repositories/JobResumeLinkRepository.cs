@@ -11,15 +11,16 @@ public class JobResumeLinkRepository : IJobResumeLinkRepository
 
     public JobResumeLinkRepository(ResumeServiceDbContext db) => _db = db;
 
-    public async Task<JobResumeLink?> GetByJobAsync(Guid jobRequisitionId, string userId) =>
+    public async Task<IEnumerable<JobResumeLink>> GetAllByJobAsync(Guid jobRequisitionId, string userId) =>
         await _db.JobResumeLinks
             .Include(l => l.Resume)
-            .FirstOrDefaultAsync(l => l.JobRequisitionId == jobRequisitionId && l.UserId == userId);
+            .Where(l => l.JobRequisitionId == jobRequisitionId && l.UserId == userId)
+            .ToListAsync();
 
-    public async Task<JobResumeLink> UpsertAsync(Guid jobRequisitionId, string userId, Guid resumeId)
+    public async Task<JobResumeLink> UpsertAsync(Guid jobRequisitionId, string userId, Guid resumeId, DocumentType documentType)
     {
         var existing = await _db.JobResumeLinks
-            .FirstOrDefaultAsync(l => l.JobRequisitionId == jobRequisitionId && l.UserId == userId);
+            .FirstOrDefaultAsync(l => l.JobRequisitionId == jobRequisitionId && l.UserId == userId && l.DocumentType == documentType);
 
         if (existing is not null)
         {
@@ -34,6 +35,7 @@ public class JobResumeLinkRepository : IJobResumeLinkRepository
                 UserId = userId,
                 JobRequisitionId = jobRequisitionId,
                 ResumeId = resumeId,
+                DocumentType = documentType,
                 LinkedAt = DateTimeOffset.UtcNow
             };
             _db.JobResumeLinks.Add(existing);
@@ -46,10 +48,10 @@ public class JobResumeLinkRepository : IJobResumeLinkRepository
             .FirstAsync(l => l.Id == existing.Id);
     }
 
-    public async Task<bool> DeleteByJobAsync(Guid jobRequisitionId, string userId)
+    public async Task<bool> DeleteByJobAndTypeAsync(Guid jobRequisitionId, string userId, DocumentType documentType)
     {
         var link = await _db.JobResumeLinks
-            .FirstOrDefaultAsync(l => l.JobRequisitionId == jobRequisitionId && l.UserId == userId);
+            .FirstOrDefaultAsync(l => l.JobRequisitionId == jobRequisitionId && l.UserId == userId && l.DocumentType == documentType);
         if (link is null) return false;
         _db.JobResumeLinks.Remove(link);
         await _db.SaveChangesAsync();

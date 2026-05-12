@@ -6,6 +6,7 @@ public class JobResumeLink
     public string UserId { get; set; } = string.Empty;
     public Guid JobRequisitionId { get; set; }
     public Guid ResumeId { get; set; }
+    public DocumentType DocumentType { get; set; }
     public DateTimeOffset LinkedAt { get; set; }
 
     public ResumeEntry Resume { get; set; } = null!;
