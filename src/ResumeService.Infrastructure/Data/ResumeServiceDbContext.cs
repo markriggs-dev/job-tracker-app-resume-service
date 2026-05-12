@@ -28,7 +28,8 @@ public class ResumeServiceDbContext : DbContext
             e.ToTable("job_resume_links");
             e.HasKey(x => x.Id);
             e.Property(x => x.UserId).HasMaxLength(256).IsRequired();
-            e.HasIndex(x => new { x.JobRequisitionId, x.UserId }).IsUnique();
+            e.Property(x => x.DocumentType).HasConversion<string>().HasMaxLength(32).IsRequired();
+            e.HasIndex(x => new { x.JobRequisitionId, x.UserId, x.DocumentType }).IsUnique();
             e.HasOne(x => x.Resume)
                 .WithMany()
                 .HasForeignKey(x => x.ResumeId)

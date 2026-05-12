@@ -13,6 +13,7 @@ public record JobResumeLinkResponse(
     Guid Id,
     Guid JobRequisitionId,
     Guid ResumeId,
+    string DocumentType,
     string FileName,
     string ContentType,
     long FileSizeBytes,
@@ -20,4 +21,9 @@ public record JobResumeLinkResponse(
     DateTimeOffset LinkedAt
 );
 
-public record LinkResumeToJobRequest(Guid ResumeId);
+public record JobDocumentsResponse(
+    JobResumeLinkResponse? Resume,
+    JobResumeLinkResponse? CoverLetter
+);
+
+public record LinkDocumentToJobRequest(Guid ResumeId, string DocumentType);

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ResumeService.Infrastructure.Data;
@@ -11,9 +12,11 @@ using ResumeService.Infrastructure.Data;
 namespace ResumeService.Infrastructure.Migrations
 {
     [DbContext(typeof(ResumeServiceDbContext))]
-    partial class ResumeServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260512172001_AddDocumentTypeToJobResumeLink")]
+    partial class AddDocumentTypeToJobResumeLink
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
